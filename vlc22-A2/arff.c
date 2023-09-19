@@ -187,5 +187,38 @@ int valida_tipo(atributo atributo,char *conteudo){
 //Recebe um arquivo arff com ponteiro de leitura antes do "@data"; passa por todas as linhas de dados e valida cada elementos de cada coluna em
 //relação ao vetor de atributos também fornecido como argumento.
 void valida_arff(FILE *arff, atributo *atributos, int quantidade){
+      char linha[2049],*dados[quantidade];
+  int n_linha=0;
+
+  //chega no @data
+  fscanf(arff,"%1025[^\n]",linha);
+  while(strcmp(linha,"@data")!=0){
+    fscanf(arff,"%1025[^\n]",linha);
+  }
+
+  while(!feof(arff)){
+    fscanf(arff,"%2049[^\n]",linha);
     
+    //verificação de quantidade    
+    int virgulas=conta_virgula(linha);
+    if(virgulas+1!=quantidade){
+      printf("quantidade de dados da linha %d não condiz com os atributos do arquivo\n",n_linha);
+      return;
+    }
+
+    dados[0]=strtok(linha,",");
+    for(int i=1;i<quantidade;i++){
+      dados[i]=strtok(NULL,",");
+    }
+
+    for(int j=0;j<quantidade;j++){
+      if(valida_tipo( atributos[j] , dados[j] )){
+        printf("tipo do dado %d da linha %d não condiz com o atributo\n",j,n_linha);
+        return;
+      }
+    }
+    n_linha++;
+  }
+  printf("o arquivo é valido");
+}
 }
